@@ -18,14 +18,11 @@ A collection of Docker Compose for quickly spinning up development environments 
 
 #### Relational Databases
 - **[PostgreSQL](./databases/Postgresql/)** - Open-source relational database with pgAdmin
-  - PostgreSQL: `localhost:5432`
-  - pgAdmin: `http://localhost:8888`
   
 - **[MySQL](./databases/MySql/)** - Popular open-source relational database
   
 - **[MS SQL Server](./databases/MsSql/)** - Microsoft SQL Server (Express, Developer, and Windows editions)
-  - Port: `1431` (Express edition)
-  
+
 - **[Oracle](./databases/Oracle/)** - Oracle Database
 
 #### NoSQL Databases
@@ -58,7 +55,6 @@ A collection of Docker Compose for quickly spinning up development environments 
 
 ### Documentation & Architecture
 - **[Docusaurus](./documentation/Docusaurus/)** - Documentation website generator
-  - Port: `3000`
   
 - **[Structurizr](./documentation/Structurizr/)** - Architecture documentation tool
 
