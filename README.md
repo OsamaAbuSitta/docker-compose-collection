@@ -1,4 +1,4 @@
-# Docker Development Environments
+# Docker Compose Collection
 
 A collection of Docker Compose configurations for quickly spinning up development environments for various databases, tools, and services.
 
