@@ -1,6 +1,6 @@
 # Docker Compose Collection
 
-A collection of Docker Compose configurations for quickly spinning up development environments for various databases, tools, and services.
+A collection of Docker Compose for quickly spinning up development environments for various databases, tools, and services.
 
 ## 🚀 Quick Start
 
