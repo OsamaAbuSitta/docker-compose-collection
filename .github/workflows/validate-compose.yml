@@ -26,19 +26,23 @@ jobs:
     - name: Validate Docker Compose files
       run: |
         echo "Validating Docker Compose files..."
-        find . -name "*.yaml" -o -name "*.yml" | while read file; do
-          if grep -q "version:" "$file" && grep -q "services:" "$file"; then
+        # Exclude .github directory and find compose files
+        find . -path ./.github -prune -o -type f \( -name "*.yaml" -o -name "*.yml" \) -print | while read file; do
+          # Check if it's a Docker Compose file
+          if grep -q "services:" "$file" 2>/dev/null; then
             echo "Validating: $file"
             docker compose -f "$file" config > /dev/null 2>&1
             if [ $? -eq 0 ]; then
               echo "✅ Valid: $file"
             else
               echo "❌ Invalid: $file"
-              docker compose -f "$file" config
+              echo "Error details:"
+              docker compose -f "$file" config 2>&1 || true
               exit 1
             fi
           fi
         done
+        echo "Validation complete!"
         
     - name: Check for security issues
       run: |
