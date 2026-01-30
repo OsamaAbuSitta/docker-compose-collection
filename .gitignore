@@ -1,0 +1,62 @@
+# Docker volumes and data
+**/data/
+**/volumes/
+**/*data/
+*.db
+
+# Logs
+**/logs/
+*.log
+**/*.log
+
+# Environment files with secrets
+.env.local
+.env.*.local
+**/.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Node modules (for Verdaccio test lib)
+**/node_modules/
+**/dist/
+**/.angular/
+
+# Database files
+*.mdf
+*.ldf
+*.bak
+*.ndf
+
+# Secrets
+**/secrets/
+machine-key
+
+# Docker
+.docker/
+
+# Grafana
+**/grafana.db
+
+# Prometheus
+**/prometheus-data/
+
+# Elasticsearch
+**/elasticsearch-data/
+
+# Keep structure but ignore data
+!**/.gitkeep

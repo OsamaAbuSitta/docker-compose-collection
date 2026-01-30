@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+    cloudbeaver:
+      container_name: dbeaver
+      image: dbeaver/cloudbeaver:23.2
+      restart: unless-stopped
+      ports:
+        - "8978:8978"
+      volumes:
+        - cloudbeaver:/opt/cloudbeaver/workspace
+
+volumes:
+  cloudbeaver:
+    driver: local

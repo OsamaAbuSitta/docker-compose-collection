@@ -1,0 +1,15 @@
+﻿---
+volumes:
+  prometheus-data:
+    driver: local
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - "D:\\04 Self Study\\11 Dotnet\\01 Monitoring App\\MonitoringApp.Api\\Metrics\\prometheus:/etc/prometheus"
+      - prometheus-data:/prometheus
+    command: "--config.file=/etc/prometheus/config/prometheus.yml"
+    restart: unless-stopped

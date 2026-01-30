@@ -1,0 +1,13 @@
+﻿---
+volumes:
+  grafana-data:
+    driver: local
+services:
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - "D:\\04 Self Study\\11 Dotnet\\01 Monitoring App\\MonitoringApp.Api\\Metrics\\grafana\\grafana-data:/var/lib/grafana"
+    restart: unless-stopped

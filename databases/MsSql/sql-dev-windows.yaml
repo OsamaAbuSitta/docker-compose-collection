@@ -1,0 +1,10 @@
+version: "3.9"
+services: 
+  sql-server-db: 
+    container_name: sql-server-win-db 
+    image: sqlchen/mssql-server-windows-developer
+    ports: 
+      - "1433:1433"
+    environment: 
+      SA_PASSWORD: "P@ssw0rd"
+      ACCEPT_EULA: "Y"

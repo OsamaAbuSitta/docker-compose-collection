@@ -1,0 +1,55 @@
+name: Validate Docker Compose Files
+
+on:
+  pull_request:
+    paths:
+      - '**/*.yaml'
+      - '**/*.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.yaml'
+      - '**/*.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Validate Docker Compose files
+      run: |
+        echo "Validating Docker Compose files..."
+        find . -name "*.yaml" -o -name "*.yml" | while read file; do
+          if grep -q "version:" "$file" && grep -q "services:" "$file"; then
+            echo "Validating: $file"
+            docker compose -f "$file" config > /dev/null 2>&1
+            if [ $? -eq 0 ]; then
+              echo "✅ Valid: $file"
+            else
+              echo "❌ Invalid: $file"
+              docker compose -f "$file" config
+              exit 1
+            fi
+          fi
+        done
+        
+    - name: Check for security issues
+      run: |
+        echo "Checking for common security issues..."
+        
+        # Check for default passwords in compose files
+        if grep -r "P@ssw0rd\|password123\|admin123" --include="*.yaml" --include="*.yml" .; then
+          echo "⚠️ Warning: Default passwords found. Ensure these are documented as development-only."
+        fi
+        
+        # Check for exposed sensitive ports
+        if grep -r "ports:" --include="*.yaml" --include="*.yml" . | grep -E "3306|5432|27017|6379" | grep "0.0.0.0"; then
+          echo "⚠️ Warning: Database ports exposed to all interfaces. Consider restricting to localhost."
+        fi

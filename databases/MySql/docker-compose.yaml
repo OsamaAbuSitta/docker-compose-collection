@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db:
+    image: mysql
+    cap_add:
+      - SYS_NICE
+    container_name: MySql
+    environment:
+      - MYSQL_DATABASE=root
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_db:/var/lib/mysql
+
+volumes: 
+  mysql_db:

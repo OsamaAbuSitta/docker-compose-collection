@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  structurizr-lite:
+    image: structurizr/lite
+    container_name: structurizr-lite
+    ports:
+      - 3001:8080
+    volumes:
+      - "D:\\04 Self Study\\DockerAndK8s\\Examples\\Structurizr\\lite:/usr/local/structurizr"
+   

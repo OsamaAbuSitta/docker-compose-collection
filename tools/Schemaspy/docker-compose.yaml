@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  schemaspy:
+    image: schemaspy/schemaspy:latest
+    container_name: schemaspy_container
+    volumes:
+      - ./schemaspy.properties:/schemaspy.properties
+      - ./output:/output
+    command: >
+      -configFile /schemaspy.properties
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true
