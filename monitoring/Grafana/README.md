@@ -2,6 +2,9 @@
 
 Grafana provides dashboards and visualizations for metrics.
 
+**Official Sites:**
+- [Grafana](https://grafana.com/) | [Docker Hub](https://hub.docker.com/r/grafana/grafana)
+
 ## Quick start
 
 ```bash

@@ -2,6 +2,9 @@
 
 Docusaurus is a static site generator designed for building documentation websites.
 
+**Official Sites:**
+- [Docusaurus](https://docusaurus.io/) | [GitHub](https://github.com/facebook/docusaurus)
+
 ## Quick Start
 
 ### Build Development Image

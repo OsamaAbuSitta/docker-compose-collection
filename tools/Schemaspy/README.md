@@ -2,6 +2,9 @@
 
 SchemaSpy generates database documentation from a configuration file.
 
+**Official Sites:**
+- [SchemaSpy](https://schemaspy.org/) | [Docker Hub](https://hub.docker.com/r/schemaspy/schemaspy)
+
 ## Quick start
 
 ```bash

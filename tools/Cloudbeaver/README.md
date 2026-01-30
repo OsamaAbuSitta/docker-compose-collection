@@ -2,6 +2,9 @@
 
 CloudBeaver is a web-based database management tool from DBeaver.
 
+**Official Sites:**
+- [CloudBeaver](https://cloudbeaver.io/) | [Docker Hub](https://hub.docker.com/r/dbeaver/cloudbeaver)
+
 ## Quick start
 
 ```bash

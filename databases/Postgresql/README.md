@@ -2,6 +2,10 @@
 
 PostgreSQL is a powerful, open-source object-relational database system with a strong reputation for reliability, feature robustness, and performance.
 
+**Official Sites:**
+- [PostgreSQL](https://www.postgresql.org/) | [Docker Hub](https://hub.docker.com/_/postgres)
+- [pgAdmin](https://www.pgadmin.org/) | [Docker Hub](https://hub.docker.com/r/dpage/pgadmin4)
+
 ## Quick Start
 
 ```bash

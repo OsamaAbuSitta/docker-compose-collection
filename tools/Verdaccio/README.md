@@ -2,6 +2,9 @@
 
 Verdaccio provides a private npm registry with an Nginx front end.
 
+**Official Sites:**
+- [Verdaccio](https://verdaccio.org/) | [Docker Hub](https://hub.docker.com/r/verdaccio/verdaccio)
+
 ## Quick start
 
 ```bash

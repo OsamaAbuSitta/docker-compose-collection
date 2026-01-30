@@ -2,6 +2,9 @@
 
 Docker configurations for running Microsoft SQL Server in containers.
 
+**Official Sites:**
+- [SQL Server](https://www.microsoft.com/en-us/sql-server) | [Docker Hub](https://hub.docker.com/_/microsoft-mssql-server)
+
 ## Available Editions
 
 ### Express Edition (sql-express-edition.yaml)
