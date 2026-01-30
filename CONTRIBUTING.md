@@ -1,4 +1,4 @@
-# Contributing to Docker Development Environments
+# Contributing
 
 Thank you for considering contributing to this project! This document provides guidelines and instructions for contributing.
 
