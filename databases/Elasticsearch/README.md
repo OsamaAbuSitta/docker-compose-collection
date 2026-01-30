@@ -2,6 +2,10 @@
 
 Elasticsearch is deployed with Kibana for visualization.
 
+**Official Sites:**
+- [Elasticsearch](https://www.elastic.co/elasticsearch/) | [Docker Hub](https://hub.docker.com/_/elasticsearch)
+- [Kibana](https://www.elastic.co/kibana/) | [Docker Hub](https://hub.docker.com/_/kibana)
+
 ## Quick start
 
 ```bash

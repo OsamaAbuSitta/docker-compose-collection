@@ -2,6 +2,9 @@
 
 Apache Airflow is deployed with PostgreSQL and Redis for the Celery executor.
 
+**Official Sites:**
+- [Apache Airflow](https://airflow.apache.org/) | [Docker Hub](https://hub.docker.com/r/apache/airflow)
+
 ## Quick start
 
 ```bash

@@ -2,6 +2,9 @@
 
 Prometheus collects metrics and exposes the UI.
 
+**Official Sites:**
+- [Prometheus](https://prometheus.io/) | [Docker Hub](https://hub.docker.com/r/prom/prometheus)
+
 ## Quick start
 
 ```bash

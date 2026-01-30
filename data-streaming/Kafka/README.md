@@ -2,6 +2,10 @@
 
 Kafka is deployed with Zookeeper and Kafka UI.
 
+**Official Sites:**
+- [Apache Kafka](https://kafka.apache.org/) | [Docker Hub](https://hub.docker.com/r/confluentinc/cp-kafka)
+- [Kafka UI](https://github.com/provectus/kafka-ui) | [Docker Hub](https://hub.docker.com/r/provectuslabs/kafka-ui)
+
 ## Quick start
 
 ```bash

@@ -2,6 +2,9 @@
 
 Oracle Database Express Edition container with a preset SID and password.
 
+**Official Sites:**
+- [Oracle Database](https://www.oracle.com/database/) | [Container Registry](https://container-registry.oracle.com/)
+
 ## Quick start
 
 ```bash

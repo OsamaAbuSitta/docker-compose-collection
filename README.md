@@ -13,56 +13,77 @@ A collection of Docker Compose for quickly spinning up development environments 
 
 ### Docker Management Tools
 - **[Portainer](./tools/Portainer/)** - Docker management UI
+  - [Official Site](https://www.portainer.io/)
 
 ### Databases
 
 #### Relational Databases
 - **[PostgreSQL](./databases/Postgresql/)** - Open-source relational database with pgAdmin
+  - [PostgreSQL](https://www.postgresql.org/) | [pgAdmin](https://www.pgadmin.org/)
   
 - **[MySQL](./databases/MySql/)** - Popular open-source relational database
+  - [Official Site](https://www.mysql.com/)
   
 - **[MS SQL Server](./databases/MsSql/)** - Microsoft SQL Server (Express, Developer, and Windows editions)
+  - [Official Site](https://www.microsoft.com/en-us/sql-server)
 
 - **[Oracle](./databases/Oracle/)** - Oracle Database
+  - [Official Site](https://www.oracle.com/database/)
 
 #### NoSQL Databases
 - **[MongoDB](./databases/Mongodb/)** - Document-oriented NoSQL database
+  - [Official Site](https://www.mongodb.com/)
   
 - **[Redis](./databases/Redis/)** - In-memory data structure store
+  - [Official Site](https://redis.io/)
   
 - **[Elasticsearch](./databases/Elasticsearch/)** - Distributed search and analytics engine
+  - [Official Site](https://www.elastic.co/elasticsearch/)
 
 ### Data Processing & Streaming
 - **[Apache Kafka](./data-streaming/Kafka/)** - Distributed event streaming platform with UI
+  - [Official Site](https://kafka.apache.org/)
   
 - **[Apache Airflow](./orchestration/Airflow/)** - Workflow orchestration platform
+  - [Official Site](https://airflow.apache.org/)
 
 ### Monitoring & Observability
 - **[Grafana](./monitoring/Grafana/)** - Analytics and monitoring platform
+  - [Official Site](https://grafana.com/)
   
 - **[Prometheus](./monitoring/Prometheus/)** - Monitoring system and time series database
+  - [Official Site](https://prometheus.io/)
   
 - **[Seq](./logging/SeqLog/)** - Structured log server
+  - [Official Site](https://datalust.co/seq)
 
 ### Development Tools
 - **[SonarQube](./tools/Sonarqube/)** - Code quality and security analysis
+  - [Official Site](https://www.sonarsource.com/products/sonarqube/)
   
 - **[Verdaccio](./tools/Verdaccio/)** - Private npm registry proxy
+  - [Official Site](https://verdaccio.org/)
   
 - **[Cloudbeaver](./tools/Cloudbeaver/)** - Web-based database management tool
+  - [Official Site](https://cloudbeaver.io/)
   
 - **[SchemaSpy](./tools/Schemaspy/)** - Database documentation generator
+  - [Official Site](https://schemaspy.org/)
 
 ### Documentation & Architecture
 - **[Docusaurus](./documentation/Docusaurus/)** - Documentation website generator
+  - [Official Site](https://docusaurus.io/)
   
 - **[Structurizr](./documentation/Structurizr/)** - Architecture documentation tool
+  - [Official Site](https://structurizr.com/)
 
 ### Security & Identity
 - **[Keycloak](./security/Keycloak/)** - Open-source identity and access management
+  - [Official Site](https://www.keycloak.org/)
 
 ### Testing
 - **[Windows Containers](./tools/Windows/)** - Windows-based container environments
+  - [GitHub](https://github.com/dockur/windows)
 
 
 ## 💡 Usage Tips
