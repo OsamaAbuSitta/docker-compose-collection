@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  redmine-app:
+    image: redmine:latest
+    container_name: redmine_app
+    restart: unless-stopped
+    ports:
+      - "${REDMINE_PORT:-3000}:3000"
+    environment:
+      - REDMINE_DB_POSTGRES=${DB_HOST:-redmine-db}
+      - REDMINE_DB_PORT=${DB_PORT:-5432}
+      - REDMINE_DB_DATABASE=${DB_DATABASE:-redmine}
+      - REDMINE_DB_USERNAME=${DB_USERNAME:-redmine}
+      - REDMINE_DB_PASSWORD=${DB_PASSWORD:-P@ss0rd123}
+      - REDMINE_SECRET_KEY_BASE=${SECRET_KEY_BASE:-changeme_secret_key_base_min_30_chars}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - redmine-files:/usr/src/redmine/files
+      - redmine-plugins:/usr/src/redmine/plugins
+      - redmine-themes:/usr/src/redmine/public/themes
+    depends_on:
+      - redmine-db
+
+  redmine-db:
+    image: postgres:15
+    container_name: redmine_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-redmine}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-redmine}
+    volumes:
+      - redmine-db-data:/var/lib/postgresql/data
+
+volumes:
+  redmine-files:
+  redmine-plugins:
+  redmine-themes:
+  redmine-db-data:
+
+networks:
+  default:
+    name: redmine-network

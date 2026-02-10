@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  nats:
+    image: nats:latest
+    container_name: nats
+    restart: unless-stopped
+    ports:
+      - "${NATS_PORT:-4222}:4222"
+      - "${NATS_HTTP_PORT:-8222}:8222"
+    command: "--http_port 8222 --jetstream --store_dir /data"
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - nats-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  nats-data:
+
+networks:
+  default:
+    name: nats-network

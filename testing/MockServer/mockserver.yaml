@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  mockserver:
+    image: mockserver/mockserver:latest
+    container_name: mockserver
+    restart: unless-stopped
+    ports:
+      - "${MOCKSERVER_PORT:-1080}:1080"
+    environment:
+      - MOCKSERVER_PROPERTY_FILE=/config/mockserver.properties
+      - MOCKSERVER_INITIALIZATION_JSON_PATH=/config/initializerJson.json
+      - MOCKSERVER_WATCH_INITIALIZATION_JSON=true
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ${CONFIG_DIR:-./config}:/config
+
+networks:
+  default:
+    name: mockserver-network

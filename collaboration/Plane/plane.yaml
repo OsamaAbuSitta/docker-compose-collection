@@ -1,0 +1,91 @@
+version: "3.9"
+
+services:
+  plane-web:
+    image: makeplane/plane-frontend:latest
+    container_name: plane_web
+    restart: unless-stopped
+    ports:
+      - "${PLANE_PORT:-3000}:3000"
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://plane-api:8000
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - plane-api
+
+  plane-api:
+    image: makeplane/plane-backend:latest
+    container_name: plane_api
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${DB_USERNAME:-plane}:${DB_PASSWORD:-P@ss0rd123}@${DB_HOST:-plane-db}:5432/${DB_DATABASE:-plane}
+      - REDIS_URL=redis://${REDIS_HOST:-plane-redis}:6379/
+      - SECRET_KEY=${SECRET_KEY:-changeme_secret_key_min_50_chars_random_string}
+      - AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY:-minioadmin}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - AWS_S3_ENDPOINT_URL=http://${MINIO_HOST:-plane-minio}:9000
+      - AWS_S3_BUCKET_NAME=${MINIO_BUCKET:-plane}
+      - USE_MINIO=1
+      - TZ=${TZ:-UTC}
+    volumes:
+      - plane-logs:/code/plane/logs
+    depends_on:
+      - plane-db
+      - plane-redis
+      - plane-minio
+
+  plane-worker:
+    image: makeplane/plane-backend:latest
+    container_name: plane_worker
+    restart: unless-stopped
+    command: ./bin/worker
+    environment:
+      - DATABASE_URL=postgresql://${DB_USERNAME:-plane}:${DB_PASSWORD:-P@ss0rd123}@${DB_HOST:-plane-db}:5432/${DB_DATABASE:-plane}
+      - REDIS_URL=redis://${REDIS_HOST:-plane-redis}:6379/
+      - SECRET_KEY=${SECRET_KEY:-changeme_secret_key_min_50_chars_random_string}
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - plane-api
+      - plane-redis
+
+  plane-db:
+    image: postgres:15
+    container_name: plane_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-plane}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-plane}
+    volumes:
+      - plane-db-data:/var/lib/postgresql/data
+
+  plane-redis:
+    image: redis:7-alpine
+    container_name: plane_redis
+    restart: unless-stopped
+    volumes:
+      - plane-redis-data:/data
+
+  plane-minio:
+    image: minio/minio:latest
+    container_name: plane_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY:-minioadmin}
+    volumes:
+      - plane-minio-data:/data
+
+volumes:
+  plane-logs:
+  plane-db-data:
+  plane-redis-data:
+  plane-minio-data:
+
+networks:
+  default:
+    name: plane-network

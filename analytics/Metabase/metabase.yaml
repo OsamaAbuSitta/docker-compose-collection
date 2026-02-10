@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase_app
+    restart: unless-stopped
+    ports:
+      - "${METABASE_PORT:-3000}:3000"
+    environment:
+      - MB_DB_TYPE=postgres
+      - MB_DB_DBNAME=${MB_DB_DBNAME:-metabase}
+      - MB_DB_PORT=${MB_DB_PORT:-5432}
+      - MB_DB_USER=${MB_DB_USER:-metabase}
+      - MB_DB_PASS=${MB_DB_PASS:-P@ss0rd123}
+      - MB_DB_HOST=${MB_DB_HOST:-metabase-db}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - metabase-data:/metabase-data
+    depends_on:
+      - metabase-db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  metabase-db:
+    image: postgres:15
+    container_name: metabase_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-metabase}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-metabase}
+    volumes:
+      - metabase-db-data:/var/lib/postgresql/data
+
+volumes:
+  metabase-data:
+  metabase-db-data:
+
+networks:
+  default:
+    name: metabase-network

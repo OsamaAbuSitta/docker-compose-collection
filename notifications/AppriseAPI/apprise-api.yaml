@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  apprise-api:
+    image: caronc/apprise:latest
+    container_name: apprise_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - apprise-config:/config
+      - apprise-attach:/attach
+    environment:
+      - TZ=UTC
+
+volumes:
+  apprise-config:
+  apprise-attach:
+
+networks:
+  default:
+    name: apprise-network

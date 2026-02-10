@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  baserow:
+    image: baserow/baserow:latest
+    container_name: baserow
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+      - "8443:443"
+    environment:
+      - BASEROW_PUBLIC_URL=http://localhost:8000
+      - DATABASE_HOST=baserow-db
+      - DATABASE_NAME=baserow
+      - DATABASE_USER=baserow
+      - DATABASE_PASSWORD=P@ss0rd123
+      - DATABASE_PORT=5432
+      - REDIS_HOST=baserow-redis
+      - REDIS_PORT=6379
+      - SECRET_KEY=changeme_secret_key_min_50_characters_long_random_string
+    volumes:
+      - baserow-data:/baserow/data
+    depends_on:
+      - baserow-db
+      - baserow-redis
+
+  baserow-db:
+    image: postgres:15
+    container_name: baserow_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=baserow
+      - POSTGRES_PASSWORD=P@ss0rd123
+      - POSTGRES_DB=baserow
+    volumes:
+      - baserow-db-data:/var/lib/postgresql/data
+
+  baserow-redis:
+    image: redis:7-alpine
+    container_name: baserow_redis
+    restart: unless-stopped
+
+volumes:
+  baserow-data:
+  baserow-db-data:
+
+networks:
+  default:
+    name: baserow-network

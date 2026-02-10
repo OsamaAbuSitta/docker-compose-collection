@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  grist:
+    image: gristlabs/grist:latest
+    container_name: grist
+    restart: unless-stopped
+    ports:
+      - "8484:8484"
+    environment:
+      - GRIST_SINGLE_ORG=grist
+      - GRIST_ORG_IN_PATH=false
+      - GRIST_DEFAULT_EMAIL=admin@example.com
+      - GRIST_SESSION_SECRET=changeme_session_secret_min_32_chars
+      - TYPEORM_TYPE=postgres
+      - TYPEORM_HOST=grist-db
+      - TYPEORM_PORT=5432
+      - TYPEORM_DATABASE=grist
+      - TYPEORM_USERNAME=grist
+      - TYPEORM_PASSWORD=P@ss0rd123
+    volumes:
+      - grist-data:/persist
+    depends_on:
+      - grist-db
+
+  grist-db:
+    image: postgres:15
+    container_name: grist_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=grist
+      - POSTGRES_PASSWORD=P@ss0rd123
+      - POSTGRES_DB=grist
+    volumes:
+      - grist-db-data:/var/lib/postgresql/data
+
+volumes:
+  grist-data:
+  grist-db-data:
+
+networks:
+  default:
+    name: grist-network

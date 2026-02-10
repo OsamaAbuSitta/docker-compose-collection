@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime_kuma
+    restart: unless-stopped
+    ports:
+      - "${UPTIME_KUMA_PORT:-3001}:3001"
+    environment:
+      - TZ=${TZ:-UTC}
+      - UPTIME_KUMA_PORT=${UPTIME_KUMA_PORT:-3001}
+    volumes:
+      - uptime-kuma-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "node extra/healthcheck.js"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+
+volumes:
+  uptime-kuma-data:
+
+networks:
+  default:
+    name: uptime-kuma-network

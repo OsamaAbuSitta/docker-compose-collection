@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    ports:
+      - "${DOZZLE_PORT:-8080}:8080"
+    environment:
+      - TZ=${TZ:-UTC}
+      - DOZZLE_USERNAME=${DOZZLE_USERNAME:-}
+      - DOZZLE_PASSWORD=${DOZZLE_PASSWORD:-}
+      - DOZZLE_FILTER=${DOZZLE_FILTER:-}
+      - DOZZLE_REMOTE_HOST=${DOZZLE_REMOTE_HOST:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+  default:
+    name: dozzle-network

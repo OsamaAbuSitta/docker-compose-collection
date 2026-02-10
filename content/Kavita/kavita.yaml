@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  kavita:
+    image: kizaing/kavita:latest
+    container_name: kavita
+    restart: unless-stopped
+    ports:
+      - "${KAVITA_PORT:-5000}:5000"
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - kavita-data:/kavita/config
+      - ${LIBRARY_DIR:-./library}:/library
+
+networks:
+  default:
+    name: kavita-network
+
+volumes:
+  kavita-data:

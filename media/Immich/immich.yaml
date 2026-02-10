@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:release
+    container_name: immich_server
+    restart: unless-stopped
+    ports:
+      - "2283:3001"
+    environment:
+      - DB_HOSTNAME=immich-db
+      - DB_USERNAME=immich
+      - DB_PASSWORD=P@ss0rd123
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=immich-redis
+      - UPLOAD_LOCATION=/usr/src/app/upload
+    volumes:
+      - immich-upload:/usr/src/app/upload
+    depends_on:
+      - immich-db
+      - immich-redis
+
+  immich-db:
+    image: postgres:15
+    container_name: immich_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=immich
+      - POSTGRES_PASSWORD=P@ss0rd123
+      - POSTGRES_DB=immich
+    volumes:
+      - immich-db-data:/var/lib/postgresql/data
+
+  immich-redis:
+    image: redis:7-alpine
+    container_name: immich_redis
+    restart: unless-stopped
+
+volumes:
+  immich-upload:
+  immich-db-data:
+
+networks:
+  default:
+    name: immich-network

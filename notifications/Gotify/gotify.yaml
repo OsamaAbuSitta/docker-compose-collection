@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  gotify:
+    image: gotify/server:latest
+    container_name: gotify
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - GOTIFY_DEFAULTUSER_NAME=admin
+      - GOTIFY_DEFAULTUSER_PASS=P@ss0rd123
+      - TZ=UTC
+    volumes:
+      - gotify-data:/app/data
+
+volumes:
+  gotify-data:
+
+networks:
+  default:
+    name: gotify-network

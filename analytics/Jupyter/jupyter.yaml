@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  jupyter:
+    image: jupyter/datascience-notebook:latest
+    container_name: jupyter_notebook
+    restart: unless-stopped
+    ports:
+      - "${JUPYTER_PORT:-8888}:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=${JUPYTER_ENABLE_LAB:-yes}
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-P@ss0rd123}
+      - GRANT_SUDO=${GRANT_SUDO:-yes}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - jupyter-notebooks:/home/jovyan/work
+      - ${NOTEBOOKS_PATH:-./notebooks}:/home/jovyan/notebooks
+    user: root
+    command: start-notebook.sh --NotebookApp.token='${JUPYTER_TOKEN:-P@ss0rd123}' --NotebookApp.password=''
+
+volumes:
+  jupyter-notebooks:
+
+networks:
+  default:
+    name: jupyter-network

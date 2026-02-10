@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  typemill:
+    image: typemill/typemill:latest
+    container_name: typemill_app
+    restart: unless-stopped
+    ports:
+      - "${TYPEMILL_PORT:-8080}:80"
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - typemill-content:/var/www/html/content
+      - typemill-settings:/var/www/html/settings
+      - typemill-themes:/var/www/html/themes
+      - typemill-plugins:/var/www/html/plugins
+      - typemill-media:/var/www/html/media
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  typemill-content:
+  typemill-settings:
+  typemill-themes:
+  typemill-plugins:
+  typemill-media:
+
+networks:
+  default:
+    name: typemill-network

@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  pairdrop:
+    image: lscr.io/linuxserver/pairdrop:latest
+    container_name: pairdrop
+    restart: unless-stopped
+    ports:
+      - "${PAIRDROP_PORT:-3000}:3000"
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+      - RATE_LIMIT=${RATE_LIMIT:-false}
+      - WS_FALLBACK=${WS_FALLBACK:-false}
+    volumes:
+      - pairdrop-config:/config
+
+networks:
+  default:
+    name: pairdrop-network
+
+volumes:
+  pairdrop-config:

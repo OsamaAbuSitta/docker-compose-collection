@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:latest
+    container_name: bookstack_app
+    restart: unless-stopped
+    ports:
+      - "${BOOKSTACK_PORT:-6875}:80"
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - APP_URL=${APP_URL:-http://localhost:6875}
+      - DB_HOST=bookstack-db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-bookstack}
+      - DB_USERNAME=${DB_USERNAME:-bookstack}
+      - DB_PASSWORD=${DB_PASSWORD:-P@ss0rd123}
+      - MAIL_DRIVER=${MAIL_DRIVER:-smtp}
+      - MAIL_HOST=${MAIL_HOST:-smtp.example.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_FROM=${MAIL_FROM:-bookstack@example.com}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME:-BookStack}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - bookstack-config:/config
+    depends_on:
+      - bookstack-db
+
+  bookstack-db:
+    image: mysql:8.0
+    container_name: bookstack_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-P@ssw0rd@123}
+      - MYSQL_DATABASE=${DB_DATABASE:-bookstack}
+      - MYSQL_USER=${DB_USERNAME:-bookstack}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-P@ss0rd123}
+    volumes:
+      - bookstack-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  bookstack-config:
+  bookstack-db-data:
+
+networks:
+  default:
+    name: bookstack-network

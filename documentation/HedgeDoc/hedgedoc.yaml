@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  hedgedoc:
+    image: quay.io/hedgedoc/hedgedoc:latest
+    container_name: hedgedoc_app
+    restart: unless-stopped
+    ports:
+      - "${HEDGEDOC_PORT:-3000}:3000"
+    environment:
+      - CMD_DB_URL=postgres://${POSTGRES_USER:-hedgedoc}:${POSTGRES_PASSWORD:-P@ss0rd123}@hedgedoc-db:5432/${POSTGRES_DB:-hedgedoc}
+      - CMD_DOMAIN=${CMD_DOMAIN:-localhost}
+      - CMD_URL_ADDPORT=${CMD_URL_ADDPORT:-true}
+      - CMD_PROTOCOL_USESSL=${CMD_PROTOCOL_USESSL:-false}
+      - CMD_PORT=3000
+      - CMD_ALLOW_ANONYMOUS=${CMD_ALLOW_ANONYMOUS:-true}
+      - CMD_ALLOW_ANONYMOUS_EDITS=${CMD_ALLOW_ANONYMOUS_EDITS:-true}
+      - CMD_ALLOW_FREEURL=${CMD_ALLOW_FREEURL:-true}
+      - CMD_DEFAULT_PERMISSION=${CMD_DEFAULT_PERMISSION:-editable}
+      - CMD_SESSION_SECRET=${CMD_SESSION_SECRET:-change_this_secret_key_to_something_random}
+      - CMD_IMAGE_UPLOAD_TYPE=${CMD_IMAGE_UPLOAD_TYPE:-filesystem}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - hedgedoc-uploads:/hedgedoc/public/uploads
+    depends_on:
+      - hedgedoc-db
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  hedgedoc-db:
+    image: postgres:15
+    container_name: hedgedoc_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-hedgedoc}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-hedgedoc}
+    volumes:
+      - hedgedoc-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hedgedoc"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  hedgedoc-uploads:
+  hedgedoc-db-data:
+
+networks:
+  default:
+    name: hedgedoc-network

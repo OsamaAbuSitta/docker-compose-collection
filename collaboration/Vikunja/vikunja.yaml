@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  vikunja-app:
+    image: vikunja/vikunja:latest
+    container_name: vikunja_app
+    restart: unless-stopped
+    ports:
+      - "${VIKUNJA_PORT:-3456}:3456"
+    environment:
+      - VIKUNJA_DATABASE_TYPE=postgres
+      - VIKUNJA_DATABASE_HOST=${DB_HOST:-vikunja-db}
+      - VIKUNJA_DATABASE_DATABASE=${DB_DATABASE:-vikunja}
+      - VIKUNJA_DATABASE_USER=${DB_USERNAME:-vikunja}
+      - VIKUNJA_DATABASE_PASSWORD=${DB_PASSWORD:-P@ss0rd123}
+      - VIKUNJA_SERVICE_JWTSECRET=${JWT_SECRET:-changeme_jwt_secret_min_32_chars}
+      - VIKUNJA_SERVICE_FRONTENDURL=${FRONTEND_URL:-http://localhost:3456}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - vikunja-files:/app/vikunja/files
+    depends_on:
+      - vikunja-db
+
+  vikunja-db:
+    image: postgres:15
+    container_name: vikunja_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-vikunja}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-vikunja}
+    volumes:
+      - vikunja-db-data:/var/lib/postgresql/data
+
+volumes:
+  vikunja-files:
+  vikunja-db-data:
+
+networks:
+  default:
+    name: vikunja-network

@@ -1,0 +1,80 @@
+version: "3.9"
+
+services:
+  redash-server:
+    image: redash/redash:latest
+    container_name: redash_server
+    restart: unless-stopped
+    ports:
+      - "${REDASH_PORT:-5000}:5000"
+    environment:
+      - PYTHONUNBUFFERED=0
+      - REDASH_LOG_LEVEL=${REDASH_LOG_LEVEL:-INFO}
+      - REDASH_REDIS_URL=redis://${REDIS_HOST:-redash-redis}:${REDIS_PORT:-6379}/0
+      - REDASH_DATABASE_URL=postgresql://${POSTGRES_USER:-redash}:${POSTGRES_PASSWORD:-P@ss0rd123}@${DATABASE_HOST:-redash-db}:${DATABASE_PORT:-5432}/${POSTGRES_DB:-redash}
+      - REDASH_COOKIE_SECRET=${REDASH_COOKIE_SECRET:-changeme_secret_key_min_32_chars}
+      - REDASH_SECRET_KEY=${REDASH_SECRET_KEY:-changeme_secret_key_min_32_chars}
+      - REDASH_WEB_WORKERS=${REDASH_WEB_WORKERS:-4}
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - redash-db
+      - redash-redis
+    command: server
+
+  redash-scheduler:
+    image: redash/redash:latest
+    container_name: redash_scheduler
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=0
+      - REDASH_LOG_LEVEL=${REDASH_LOG_LEVEL:-INFO}
+      - REDASH_REDIS_URL=redis://${REDIS_HOST:-redash-redis}:${REDIS_PORT:-6379}/0
+      - REDASH_DATABASE_URL=postgresql://${POSTGRES_USER:-redash}:${POSTGRES_PASSWORD:-P@ss0rd123}@${DATABASE_HOST:-redash-db}:${DATABASE_PORT:-5432}/${POSTGRES_DB:-redash}
+      - QUEUES=celery
+      - WORKERS_COUNT=${WORKERS_COUNT:-1}
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - redash-server
+    command: scheduler
+
+  redash-worker:
+    image: redash/redash:latest
+    container_name: redash_worker
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=0
+      - REDASH_LOG_LEVEL=${REDASH_LOG_LEVEL:-INFO}
+      - REDASH_REDIS_URL=redis://${REDIS_HOST:-redash-redis}:${REDIS_PORT:-6379}/0
+      - REDASH_DATABASE_URL=postgresql://${POSTGRES_USER:-redash}:${POSTGRES_PASSWORD:-P@ss0rd123}@${DATABASE_HOST:-redash-db}:${DATABASE_PORT:-5432}/${POSTGRES_DB:-redash}
+      - QUEUES=queries,scheduled_queries,celery
+      - WORKERS_COUNT=${WORKERS_COUNT:-2}
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - redash-server
+    command: worker
+
+  redash-db:
+    image: postgres:15
+    container_name: redash_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-redash}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-redash}
+    volumes:
+      - redash-db-data:/var/lib/postgresql/data
+
+  redash-redis:
+    image: redis:7-alpine
+    container_name: redash_redis
+    restart: unless-stopped
+    volumes:
+      - redash-redis-data:/data
+
+volumes:
+  redash-db-data:
+  redash-redis-data:
+
+networks:
+  default:
+    name: redash-network

@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  seafile:
+    image: seafileltd/seafile-mc:latest
+    container_name: seafile
+    restart: unless-stopped
+    ports:
+      - "${SEAFILE_PORT:-80}:80"
+      - "${SEAFILE_HTTPS_PORT:-443}:443"
+    environment:
+      - DB_HOST=seafile-db
+      - DB_ROOT_PASSWD=${MYSQL_ROOT_PASSWORD:-P@ssw0rd@123}
+      - TIME_ZONE=${TZ:-UTC}
+      - SEAFILE_ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - SEAFILE_ADMIN_PASSWORD=${ADMIN_PASSWORD:-P@ss0rd123}
+      - SEAFILE_SERVER_LETSENCRYPT=false
+      - SEAFILE_SERVER_HOSTNAME=${SERVER_HOSTNAME:-localhost}
+    volumes:
+      - seafile-data:/shared
+    depends_on:
+      - seafile-db
+      - seafile-memcached
+
+  seafile-db:
+    image: mariadb:10
+    container_name: seafile_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-P@ssw0rd@123}
+      - MYSQL_LOG_CONSOLE=true
+    volumes:
+      - seafile-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  seafile-memcached:
+    image: memcached:1.6-alpine
+    container_name: seafile_memcached
+    restart: unless-stopped
+    entrypoint: memcached -m 256
+
+volumes:
+  seafile-data:
+  seafile-db-data:
+
+networks:
+  default:
+    name: seafile-network

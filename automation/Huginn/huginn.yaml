@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  huginn:
+    image: huginn/huginn:latest
+    container_name: huginn
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_ADAPTER=postgresql
+      - DATABASE_HOST=huginn-db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=huginn
+      - DATABASE_USERNAME=huginn
+      - DATABASE_PASSWORD=P@ss0rd123
+      - HUGINN_DATABASE_NAME=huginn
+      - HUGINN_DATABASE_USERNAME=huginn
+      - HUGINN_DATABASE_PASSWORD=P@ss0rd123
+      - APP_SECRET_TOKEN=changeme_secret_token_min_32_characters_long
+      - DOMAIN=localhost:3000
+      - SMTP_DOMAIN=localhost
+      - SMTP_USER_NAME=
+      - SMTP_PASSWORD=
+      - SMTP_SERVER=
+      - SMTP_PORT=587
+      - SMTP_AUTHENTICATION=plain
+      - SMTP_ENABLE_STARTTLS_AUTO=true
+    depends_on:
+      - huginn-db
+    volumes:
+      - huginn-data:/var/lib/huginn
+
+  huginn-db:
+    image: postgres:15
+    container_name: huginn_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=huginn
+      - POSTGRES_PASSWORD=P@ss0rd123
+      - POSTGRES_DB=huginn
+    volumes:
+      - huginn-db-data:/var/lib/postgresql/data
+
+volumes:
+  huginn-data:
+  huginn-db-data:
+
+networks:
+  default:
+    name: huginn-network

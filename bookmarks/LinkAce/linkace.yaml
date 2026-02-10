@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  linkace:
+    image: linkace/linkace:latest
+    container_name: linkace
+    restart: unless-stopped
+    ports:
+      - "${LINKACE_PORT:-80}:80"
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=linkace-db
+      - DB_PORT=3306
+      - DB_DATABASE=${MYSQL_DATABASE:-linkace}
+      - DB_USERNAME=${MYSQL_USER:-linkace}
+      - DB_PASSWORD=${MYSQL_PASSWORD:-P@ss0rd123}
+      - APP_KEY=${APP_KEY:-base64:changeme}
+      - APP_URL=${APP_URL:-http://localhost}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - linkace-data:/app/storage
+    depends_on:
+      - linkace-db
+
+  linkace-db:
+    image: mariadb:10
+    container_name: linkace_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-P@ssw0rd@123}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-linkace}
+      - MYSQL_USER=${MYSQL_USER:-linkace}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-P@ss0rd123}
+    volumes:
+      - linkace-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  linkace-data:
+  linkace-db-data:
+
+networks:
+  default:
+    name: linkace-network

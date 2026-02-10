@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  trilium:
+    image: zadam/trilium:latest
+    container_name: trilium_notes
+    restart: unless-stopped
+    ports:
+      - "${TRILIUM_PORT:-8080}:8080"
+    environment:
+      - TRILIUM_DATA_DIR=${TRILIUM_DATA_DIR:-/home/node/trilium-data}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - trilium-data:/home/node/trilium-data
+
+volumes:
+  trilium-data:
+
+networks:
+  default:
+    name: trilium-network

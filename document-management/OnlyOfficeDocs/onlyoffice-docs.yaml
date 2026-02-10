@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  onlyoffice-docs:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice-docs
+    restart: unless-stopped
+    ports:
+      - "${ONLYOFFICE_PORT:-8080}:80"
+      - "${ONLYOFFICE_HTTPS_PORT:-8443}:443"
+    environment:
+      - TZ=${TZ:-UTC}
+      - DB_TYPE=postgres
+      - DB_HOST=onlyoffice-db
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB:-onlyoffice}
+      - DB_USER=${POSTGRES_USER:-onlyoffice}
+      - DB_PWD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - AMQP_URI=amqp://guest:guest@onlyoffice-rabbitmq
+      - REDIS_SERVER_HOST=onlyoffice-redis
+      - REDIS_SERVER_PORT=6379
+      - JWT_ENABLED=${JWT_ENABLED:-true}
+      - JWT_SECRET=${JWT_SECRET:-change-me-to-a-secret-key}
+      - JWT_HEADER=Authorization
+    volumes:
+      - onlyoffice-data:/var/www/onlyoffice/Data
+      - onlyoffice-logs:/var/log/onlyoffice
+    depends_on:
+      - onlyoffice-db
+      - onlyoffice-rabbitmq
+      - onlyoffice-redis
+
+  onlyoffice-db:
+    image: postgres:15
+    container_name: onlyoffice_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-onlyoffice}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-onlyoffice}
+    volumes:
+      - onlyoffice-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U onlyoffice"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  onlyoffice-rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: onlyoffice_rabbitmq
+    restart: unless-stopped
+    volumes:
+      - onlyoffice-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  onlyoffice-redis:
+    image: redis:7-alpine
+    container_name: onlyoffice_redis
+    restart: unless-stopped
+    volumes:
+      - onlyoffice-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  onlyoffice-data:
+  onlyoffice-logs:
+  onlyoffice-db-data:
+  onlyoffice-rabbitmq-data:
+  onlyoffice-redis-data:
+
+networks:
+  default:
+    name: onlyoffice-network

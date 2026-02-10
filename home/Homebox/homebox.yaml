@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  homebox:
+    image: ghcr.io/hay-kot/homebox:latest
+    container_name: homebox
+    restart: unless-stopped
+    ports:
+      - "7745:7745"
+    environment:
+      - HBOX_LOG_LEVEL=info
+      - HBOX_WEB_PORT=7745
+      - TZ=UTC
+    volumes:
+      - homebox-data:/data
+
+volumes:
+  homebox-data:
+
+networks:
+  default:
+    name: homebox-network

@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  superset:
+    image: apache/superset:latest
+    container_name: superset_app
+    restart: unless-stopped
+    ports:
+      - "${SUPERSET_PORT:-8088}:8088"
+    environment:
+      - DATABASE_DIALECT=postgresql
+      - DATABASE_HOST=${DATABASE_HOST:-superset-db}
+      - DATABASE_PORT=${DATABASE_PORT:-5432}
+      - DATABASE_DB=${DATABASE_DB:-superset}
+      - DATABASE_USER=${DATABASE_USER:-superset}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-P@ss0rd123}
+      - REDIS_HOST=${REDIS_HOST:-superset-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - SECRET_KEY=${SECRET_KEY:-changeme_secret_key_min_42_chars_required_here}
+      - SUPERSET_LOAD_EXAMPLES=${SUPERSET_LOAD_EXAMPLES:-yes}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - superset-data:/app/superset_home
+    depends_on:
+      - superset-db
+      - superset-redis
+    command: >
+      sh -c "superset db upgrade &&
+             superset fab create-admin --username ${ADMIN_USERNAME:-admin} --firstname Admin --lastname User --email ${ADMIN_EMAIL:-admin@superset.com} --password ${ADMIN_PASSWORD:-P@ss0rd123} || true &&
+             superset init &&
+             gunicorn --bind 0.0.0.0:8088 --workers 4 --timeout 120 --limit-request-line 0 --limit-request-field_size 0 'superset.app:create_app()'"
+
+  superset-db:
+    image: postgres:15
+    container_name: superset_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-superset}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-superset}
+    volumes:
+      - superset-db-data:/var/lib/postgresql/data
+
+  superset-redis:
+    image: redis:7-alpine
+    container_name: superset_redis
+    restart: unless-stopped
+    volumes:
+      - superset-redis-data:/data
+
+volumes:
+  superset-data:
+  superset-db-data:
+  superset-redis-data:
+
+networks:
+  default:
+    name: superset-network

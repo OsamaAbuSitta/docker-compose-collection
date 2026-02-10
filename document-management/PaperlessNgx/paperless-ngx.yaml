@@ -1,0 +1,87 @@
+version: "3.9"
+
+services:
+  paperless-ngx:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless-ngx
+    restart: unless-stopped
+    ports:
+      - "${PAPERLESS_PORT:-8000}:8000"
+    environment:
+      - PAPERLESS_REDIS=redis://paperless-redis:6379
+      - PAPERLESS_DBHOST=paperless-db
+      - PAPERLESS_DBNAME=${POSTGRES_DB:-paperless}
+      - PAPERLESS_DBUSER=${POSTGRES_USER:-paperless}
+      - PAPERLESS_DBPASS=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - PAPERLESS_TIKA_ENABLED=1
+      - PAPERLESS_TIKA_GOTENBERG_ENDPOINT=http://paperless-gotenberg:3000
+      - PAPERLESS_TIKA_ENDPOINT=http://paperless-tika:9998
+      - PAPERLESS_SECRET_KEY=${SECRET_KEY:-change-me-to-a-random-string}
+      - PAPERLESS_URL=${PAPERLESS_URL:-http://localhost:8000}
+      - PAPERLESS_TIME_ZONE=${TZ:-UTC}
+      - PAPERLESS_OCR_LANGUAGE=${OCR_LANGUAGE:-eng}
+      - PAPERLESS_ADMIN_USER=${ADMIN_USER:-admin}
+      - PAPERLESS_ADMIN_PASSWORD=${ADMIN_PASSWORD:-P@ss0rd123}
+      - PAPERLESS_ADMIN_MAIL=${ADMIN_MAIL:-admin@example.com}
+    volumes:
+      - paperless-data:/usr/src/paperless/data
+      - paperless-media:/usr/src/paperless/media
+      - ${EXPORT_DIR:-./export}:/usr/src/paperless/export
+      - ${CONSUME_DIR:-./consume}:/usr/src/paperless/consume
+    depends_on:
+      - paperless-db
+      - paperless-redis
+      - paperless-tika
+      - paperless-gotenberg
+
+  paperless-db:
+    image: postgres:15
+    container_name: paperless_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-paperless}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-paperless}
+    volumes:
+      - paperless-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperless"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  paperless-redis:
+    image: redis:7-alpine
+    container_name: paperless_redis
+    restart: unless-stopped
+    volumes:
+      - paperless-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  paperless-tika:
+    image: ghcr.io/paperless-ngx/tika:latest
+    container_name: paperless_tika
+    restart: unless-stopped
+
+  paperless-gotenberg:
+    image: gotenberg/gotenberg:7
+    container_name: paperless_gotenberg
+    restart: unless-stopped
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+
+volumes:
+  paperless-data:
+  paperless-media:
+  paperless-db-data:
+  paperless-redis-data:
+
+networks:
+  default:
+    name: paperless-network

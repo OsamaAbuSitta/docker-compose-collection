@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  wekan-app:
+    image: quay.io/wekan/wekan:latest
+    container_name: wekan_app
+    restart: unless-stopped
+    ports:
+      - "${WEKAN_PORT:-8080}:8080"
+    environment:
+      - MONGO_URL=mongodb://${MONGO_USERNAME:-wekan}:${MONGO_PASSWORD:-P@ss0rd123}@${MONGO_HOST:-wekan-db}:27017/${MONGO_DATABASE:-wekan}
+      - ROOT_URL=${ROOT_URL:-http://localhost:8080}
+      - MAIL_URL=${MAIL_URL:-smtp://user:pass@mailserver.example.com:25/}
+      - MAIL_FROM=${MAIL_FROM:-Wekan <noreply@example.com>}
+      - WITH_API=${WITH_API:-true}
+      - RICHER_CARD_COMMENT_EDITOR=${RICHER_EDITOR:-true}
+      - CARD_OPENED_WEBHOOK_ENABLED=${CARD_WEBHOOK:-false}
+      - BIGEVENTS_PATTERN=${BIGEVENTS_PATTERN:-NONE}
+      - BROWSER_POLICY_ENABLED=${BROWSER_POLICY:-true}
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - wekan-db
+
+  wekan-db:
+    image: mongo:6
+    container_name: wekan_db
+    restart: unless-stopped
+    command: mongod --logpath /dev/null --oplogSize 128 --quiet
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-root}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-P@ss0rd123}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE:-wekan}
+    volumes:
+      - wekan-db-data:/data/db
+      - wekan-db-dump:/dump
+
+volumes:
+  wekan-db-data:
+  wekan-db-dump:
+
+networks:
+  default:
+    name: wekan-network

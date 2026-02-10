@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  stirling-pdf:
+    image: frooodle/s-pdf:latest
+    container_name: stirling-pdf
+    restart: unless-stopped
+    ports:
+      - "${STIRLING_PORT:-8080}:8080"
+    environment:
+      - TZ=${TZ:-UTC}
+      - DOCKER_ENABLE_SECURITY=${ENABLE_SECURITY:-false}
+      - SECURITY_ENABLELOGIN=${ENABLE_LOGIN:-false}
+      - SYSTEM_DEFAULTLOCALE=${DEFAULT_LOCALE:-en-US}
+    volumes:
+      - stirling-data:/usr/share/tessdata
+      - ${CONFIGS_DIR:-./configs}:/configs
+
+networks:
+  default:
+    name: stirling-pdf-network
+
+volumes:
+  stirling-data:

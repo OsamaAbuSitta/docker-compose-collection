@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  postfix:
+    image: boky/postfix:latest
+    container_name: postfix-mail
+    restart: unless-stopped
+    ports:
+      - "${SMTP_PORT:-25}:25"
+      - "${SUBMISSION_PORT:-587}:587"
+    environment:
+      - HOSTNAME=${HOSTNAME:-mail.example.com}
+      - ALLOWED_SENDER_DOMAINS=${ALLOWED_DOMAINS:-example.com}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - postfix-spool:/var/spool/postfix
+
+networks:
+  default:
+    name: postfix-network
+
+volumes:
+  postfix-spool:

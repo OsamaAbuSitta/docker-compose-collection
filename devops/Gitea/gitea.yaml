@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea_container
+    restart: unless-stopped
+    ports:
+      - "${GITEA_HTTP_PORT:-3000}:3000"
+      - "${GITEA_SSH_PORT:-2223}:22"
+    environment:
+      - USER_UID=${USER_UID:-1000}
+      - USER_GID=${USER_GID:-1000}
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=gitea-db:5432
+      - GITEA__database__NAME=${POSTGRES_DB:-gitea}
+      - GITEA__database__USER=${POSTGRES_USER:-gitea}
+      - GITEA__database__PASSWD=${POSTGRES_PASSWORD:-P@ssw0rd@123}
+      - GITEA__server__DOMAIN=${GITEA_DOMAIN:-localhost}
+      - GITEA__server__SSH_DOMAIN=${GITEA_DOMAIN:-localhost}
+      - GITEA__server__ROOT_URL=http://${GITEA_DOMAIN:-localhost}:${GITEA_HTTP_PORT:-3000}/
+      - GITEA__server__SSH_PORT=${GITEA_SSH_PORT:-2223}
+      - GITEA__security__INSTALL_LOCK=${GITEA_INSTALL_LOCK:-false}
+      - GITEA__security__SECRET_KEY=${GITEA_SECRET_KEY:-changeme_secret_key_min_64_chars_changeme_secret_key_min_64_chars}
+      - GITEA__security__INTERNAL_TOKEN=${GITEA_INTERNAL_TOKEN:-changeme_internal_token}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - gitea-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - gitea-db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  gitea-db:
+    image: postgres:15-alpine
+    container_name: gitea_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-gitea}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ssw0rd@123}
+      - POSTGRES_DB=${POSTGRES_DB:-gitea}
+    volumes:
+      - gitea-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gitea}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  gitea-data:
+  gitea-db-data:
+
+networks:
+  default:
+    name: gitea-network

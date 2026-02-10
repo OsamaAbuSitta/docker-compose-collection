@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  firefly-app:
+    image: fireflyiii/core:latest
+    container_name: firefly_app
+    restart: unless-stopped
+    ports:
+      - "${FIREFLY_PORT:-8080}:8080"
+    environment:
+      - APP_KEY=${APP_KEY:-SomeRandomStringOf32CharsExactly}
+      - DB_HOST=${DB_HOST:-firefly-db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_CONNECTION=${DB_CONNECTION:-pgsql}
+      - DB_DATABASE=${DB_DATABASE:-firefly}
+      - DB_USERNAME=${DB_USERNAME:-firefly}
+      - DB_PASSWORD=${DB_PASSWORD:-P@ss0rd123}
+      - APP_URL=${APP_URL:-http://localhost:8080}
+      - TRUSTED_PROXIES=${TRUSTED_PROXIES:-**}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - firefly-upload:/var/www/html/storage/upload
+    depends_on:
+      - firefly-db
+
+  firefly-db:
+    image: postgres:15
+    container_name: firefly_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-firefly}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-firefly}
+    volumes:
+      - firefly-db-data:/var/lib/postgresql/data
+
+volumes:
+  firefly-upload:
+  firefly-db-data:
+
+networks:
+  default:
+    name: firefly-network

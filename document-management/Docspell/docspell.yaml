@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+  docspell-restserver:
+    image: docspell/restserver:latest
+    container_name: docspell_restserver
+    restart: unless-stopped
+    ports:
+      - "${DOCSPELL_PORT:-7880}:7880"
+    environment:
+      - TZ=${TZ:-UTC}
+      - DOCSPELL_SERVER_BACKEND_JDBC_URL=jdbc:postgresql://docspell-db:5432/${POSTGRES_DB:-docspell}
+      - DOCSPELL_SERVER_BACKEND_JDBC_USER=${POSTGRES_USER:-docspell}
+      - DOCSPELL_SERVER_BACKEND_JDBC_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - DOCSPELL_SERVER_BIND_ADDRESS=0.0.0.0
+      - DOCSPELL_SERVER_FULL_TEXT_SEARCH_ENABLED=true
+      - DOCSPELL_SERVER_FULL_TEXT_SEARCH_SOLR_URL=http://docspell-solr:8983/solr/docspell
+      - DOCSPELL_SERVER_ADMIN_ENDPOINT_SECRET=${ADMIN_SECRET:-change-me}
+    depends_on:
+      - docspell-db
+      - docspell-solr
+
+  docspell-joex:
+    image: docspell/joex:latest
+    container_name: docspell_joex
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-UTC}
+      - DOCSPELL_JOEX_JDBC_URL=jdbc:postgresql://docspell-db:5432/${POSTGRES_DB:-docspell}
+      - DOCSPELL_JOEX_JDBC_USER=${POSTGRES_USER:-docspell}
+      - DOCSPELL_JOEX_JDBC_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - DOCSPELL_JOEX_BIND_ADDRESS=0.0.0.0
+      - DOCSPELL_JOEX_FULL_TEXT_SEARCH_ENABLED=true
+      - DOCSPELL_JOEX_FULL_TEXT_SEARCH_SOLR_URL=http://docspell-solr:8983/solr/docspell
+      - DOCSPELL_JOEX_ADMIN_ENDPOINT_SECRET=${ADMIN_SECRET:-change-me}
+    depends_on:
+      - docspell-db
+      - docspell-solr
+
+  docspell-db:
+    image: postgres:15
+    container_name: docspell_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-docspell}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-docspell}
+    volumes:
+      - docspell-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docspell"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  docspell-solr:
+    image: solr:9
+    container_name: docspell_solr
+    restart: unless-stopped
+    volumes:
+      - docspell-solr-data:/var/solr
+    command:
+      - "solr-precreate"
+      - "docspell"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8983/solr/docspell/admin/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  docspell-db-data:
+  docspell-solr-data:
+
+networks:
+  default:
+    name: docspell-network

@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  appflowy:
+    image: appflowyinc/appflowy_cloud:latest
+    container_name: appflowy_app
+    restart: unless-stopped
+    ports:
+      - "${APPFLOWY_PORT:-8080}:8080"
+    environment:
+      - RUST_LOG=${RUST_LOG:-info}
+      - APPFLOWY_ENVIRONMENT=production
+      - APPFLOWY_DATABASE_URL=postgres://${POSTGRES_USER:-appflowy}:${POSTGRES_PASSWORD:-P@ss0rd123}@appflowy-db:5432/${POSTGRES_DB:-appflowy}
+      - APPFLOWY_REDIS_URL=redis://appflowy-redis:6379
+      - APPFLOWY_GOTRUE_JWT_SECRET=${JWT_SECRET:-your_jwt_secret_at_least_32_characters}
+      - APPFLOWY_GOTRUE_JWT_EXP=${JWT_EXP:-7200}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - appflowy-data:/app/data
+    depends_on:
+      - appflowy-db
+      - appflowy-redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  appflowy-db:
+    image: postgres:15
+    container_name: appflowy_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-appflowy}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-appflowy}
+    volumes:
+      - appflowy-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appflowy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  appflowy-redis:
+    image: redis:7-alpine
+    container_name: appflowy_redis
+    restart: unless-stopped
+    volumes:
+      - appflowy-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  appflowy-data:
+  appflowy-db-data:
+  appflowy-redis-data:
+
+networks:
+  default:
+    name: appflowy-network
