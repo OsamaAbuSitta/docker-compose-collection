@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  gollum:
+    image: gollumwiki/gollum:latest
+    container_name: gollum_app
+    restart: unless-stopped
+    ports:
+      - "${GOLLUM_PORT:-4567}:4567"
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - gollum-wiki:/wiki
+    command: >
+      --port 4567
+      --host 0.0.0.0
+      --allow-uploads page
+      --emoji
+      --user-icons gravatar
+      --live-preview
+      /wiki
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4567"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  gollum-wiki:
+
+networks:
+  default:
+    name: gollum-network

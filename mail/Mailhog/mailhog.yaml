@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog
+    restart: unless-stopped
+    ports:
+      - "${SMTP_PORT:-1025}:1025"
+      - "${WEB_PORT:-8025}:8025"
+    environment:
+      - TZ=${TZ:-UTC}
+
+networks:
+  default:
+    name: mailhog-network

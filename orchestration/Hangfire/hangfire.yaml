@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  hangfire-app:
+    image: mcr.microsoft.com/dotnet/aspnet:8.0
+    container_name: hangfire_app
+    restart: unless-stopped
+    ports:
+      - "${HANGFIRE_PORT:-5000}:5000"
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__HangfireConnection=Server=${SQL_HOST:-hangfire-db};Database=${SQL_DATABASE:-Hangfire};User Id=${SQL_USER:-sa};Password=${SQL_PASSWORD:-P@ssw0rd@123};TrustServerCertificate=True;
+      - Hangfire__DashboardPath=${DASHBOARD_PATH:-/hangfire}
+      - Hangfire__WorkerCount=${WORKER_COUNT:-5}
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - hangfire-db
+    volumes:
+      - hangfire-app-data:/app/data
+    command: >
+      sh -c "echo 'Hangfire requires a custom .NET application. See README for setup instructions.' && tail -f /dev/null"
+
+  hangfire-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hangfire_db
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQL_PASSWORD:-P@ssw0rd@123}
+      - MSSQL_PID=${MSSQL_PID:-Developer}
+    ports:
+      - "${SQL_PORT:-1433}:1433"
+    volumes:
+      - hangfire-db-data:/var/opt/mssql
+
+volumes:
+  hangfire-app-data:
+  hangfire-db-data:
+
+networks:
+  default:
+    name: hangfire-network

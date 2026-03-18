@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  joplin-server:
+    image: joplin/server:latest
+    container_name: joplin_server
+    restart: unless-stopped
+    ports:
+      - "${JOPLIN_PORT:-22300}:22300"
+    environment:
+      - APP_BASE_URL=${APP_BASE_URL:-http://localhost:22300}
+      - APP_PORT=${APP_PORT:-22300}
+      - DB_CLIENT=${DB_CLIENT:-pg}
+      - POSTGRES_HOST=${POSTGRES_HOST:-joplin-db}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-joplin}
+      - POSTGRES_USER=${POSTGRES_USER:-joplin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+    depends_on:
+      - joplin-db
+
+  joplin-db:
+    image: postgres:15
+    container_name: joplin_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=joplin
+      - POSTGRES_PASSWORD=P@ss0rd123
+      - POSTGRES_DB=joplin
+    volumes:
+      - joplin-db-data:/var/lib/postgresql/data
+
+volumes:
+  joplin-db-data:
+
+networks:
+  default:
+    name: joplin-network

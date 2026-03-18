@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  flyway:
+    image: flyway/flyway:latest
+    container_name: flyway_container
+    command: info
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://${DB_HOST:-postgres}:${DB_PORT:-5432}/${DB_NAME:-mydb}
+      - FLYWAY_USER=${DB_USER:-postgres}
+      - FLYWAY_PASSWORD=${DB_PASSWORD:-P@ssw0rd@123}
+      - FLYWAY_SCHEMAS=${FLYWAY_SCHEMAS:-public}
+      - FLYWAY_BASELINE_ON_MIGRATE=${FLYWAY_BASELINE_ON_MIGRATE:-true}
+      - FLYWAY_VALIDATE_ON_MIGRATE=${FLYWAY_VALIDATE_ON_MIGRATE:-true}
+      - FLYWAY_LOCATIONS=${FLYWAY_LOCATIONS:-filesystem:/flyway/sql}
+    volumes:
+      - ./sql:/flyway/sql
+      - ./conf:/flyway/conf
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: flyway_postgres
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-P@ssw0rd@123}
+      - POSTGRES_DB=${DB_NAME:-mydb}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
+
+networks:
+  default:
+    name: flyway-network

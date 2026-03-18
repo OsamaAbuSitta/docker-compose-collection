@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  snipeit:
+    image: snipe/snipe-it:latest
+    container_name: snipeit
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=base64:changeme_app_key_base64_encoded_32_chars
+      - APP_URL=http://localhost:8080
+      - APP_TIMEZONE=UTC
+      - APP_LOCALE=en
+      - MYSQL_PORT_3306_TCP_ADDR=snipeit-db
+      - MYSQL_PORT_3306_TCP_PORT=3306
+      - MYSQL_DATABASE=snipeit
+      - MYSQL_USER=snipeit
+      - MYSQL_PASSWORD=P@ss0rd123
+      - MAIL_DRIVER=smtp
+      - MAIL_HOST=
+      - MAIL_PORT=587
+      - MAIL_USERNAME=
+      - MAIL_PASSWORD=
+      - MAIL_ENCRYPTION=tls
+      - MAIL_FROM_ADDR=
+      - MAIL_FROM_NAME=
+    volumes:
+      - snipeit-data:/var/lib/snipeit
+    depends_on:
+      - snipeit-db
+
+  snipeit-db:
+    image: mysql:8
+    container_name: snipeit_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=P@ss0rd123
+      - MYSQL_DATABASE=snipeit
+      - MYSQL_USER=snipeit
+      - MYSQL_PASSWORD=P@ss0rd123
+    volumes:
+      - snipeit-db-data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  snipeit-data:
+  snipeit-db-data:
+
+networks:
+  default:
+    name: snipeit-network

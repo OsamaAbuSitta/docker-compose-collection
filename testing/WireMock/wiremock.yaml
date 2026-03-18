@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  wiremock:
+    image: wiremock/wiremock:latest
+    container_name: wiremock
+    restart: unless-stopped
+    ports:
+      - "${WIREMOCK_PORT:-8080}:8080"
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ${MAPPINGS_DIR:-./mappings}:/home/wiremock/mappings
+      - ${FILES_DIR:-./files}:/home/wiremock/__files
+    command: ["--global-response-templating", "--verbose"]
+
+networks:
+  default:
+    name: wiremock-network

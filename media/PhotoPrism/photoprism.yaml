@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    restart: unless-stopped
+    ports:
+      - "2342:2342"
+    environment:
+      - PHOTOPRISM_ADMIN_PASSWORD=P@ss0rd123
+      - PHOTOPRISM_SITE_URL=http://localhost:2342/
+      - PHOTOPRISM_ORIGINALS_LIMIT=5000
+      - PHOTOPRISM_HTTP_COMPRESSION=gzip
+      - PHOTOPRISM_DATABASE_DRIVER=mysql
+      - PHOTOPRISM_DATABASE_SERVER=photoprism-db:3306
+      - PHOTOPRISM_DATABASE_NAME=photoprism
+      - PHOTOPRISM_DATABASE_USER=photoprism
+      - PHOTOPRISM_DATABASE_PASSWORD=P@ss0rd123
+      - PHOTOPRISM_SITE_CAPTION=AI-Powered Photos App
+      - PHOTOPRISM_SITE_DESCRIPTION=
+      - PHOTOPRISM_SITE_AUTHOR=
+    volumes:
+      - photoprism-originals:/photoprism/originals
+      - photoprism-storage:/photoprism/storage
+    depends_on:
+      - photoprism-db
+
+  photoprism-db:
+    image: mariadb:10
+    container_name: photoprism_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=P@ss0rd123
+      - MYSQL_DATABASE=photoprism
+      - MYSQL_USER=photoprism
+      - MYSQL_PASSWORD=P@ss0rd123
+    volumes:
+      - photoprism-db-data:/var/lib/mysql
+    command: mysqld --innodb-buffer-pool-size=256M --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+
+volumes:
+  photoprism-originals:
+  photoprism-storage:
+  photoprism-db-data:
+
+networks:
+  default:
+    name: photoprism-network

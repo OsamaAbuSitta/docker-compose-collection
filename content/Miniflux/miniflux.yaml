@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  miniflux:
+    image: miniflux/miniflux:latest
+    container_name: miniflux
+    restart: unless-stopped
+    ports:
+      - "${MINIFLUX_PORT:-8080}:8080"
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-miniflux}:${POSTGRES_PASSWORD:-P@ss0rd123}@miniflux-db/${POSTGRES_DB:-miniflux}?sslmode=disable
+      - RUN_MIGRATIONS=1
+      - CREATE_ADMIN=1
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-P@ss0rd123}
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - miniflux-db
+
+  miniflux-db:
+    image: postgres:15
+    container_name: miniflux_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-miniflux}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-miniflux}
+    volumes:
+      - miniflux-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U miniflux"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  miniflux-db-data:
+
+networks:
+  default:
+    name: miniflux-network

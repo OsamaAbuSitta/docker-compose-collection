@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  wallabag:
+    image: wallabag/wallabag:latest
+    container_name: wallabag
+    restart: unless-stopped
+    ports:
+      - "${WALLABAG_PORT:-8080}:80"
+    environment:
+      - SYMFONY__ENV__DATABASE_DRIVER=pdo_pgsql
+      - SYMFONY__ENV__DATABASE_HOST=wallabag-db
+      - SYMFONY__ENV__DATABASE_PORT=5432
+      - SYMFONY__ENV__DATABASE_NAME=${POSTGRES_DB:-wallabag}
+      - SYMFONY__ENV__DATABASE_USER=${POSTGRES_USER:-wallabag}
+      - SYMFONY__ENV__DATABASE_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - SYMFONY__ENV__REDIS_HOST=wallabag-redis
+      - SYMFONY__ENV__DOMAIN_NAME=${DOMAIN_NAME:-http://localhost:8080}
+      - SYMFONY__ENV__SECRET=${SECRET_KEY:-change-me-to-a-secret-key}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - wallabag-data:/var/www/wallabag/data
+      - wallabag-images:/var/www/wallabag/web/assets/images
+    depends_on:
+      - wallabag-db
+      - wallabag-redis
+
+  wallabag-db:
+    image: postgres:15
+    container_name: wallabag_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-wallabag}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-wallabag}
+    volumes:
+      - wallabag-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallabag"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  wallabag-redis:
+    image: redis:7-alpine
+    container_name: wallabag_redis
+    restart: unless-stopped
+    volumes:
+      - wallabag-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  wallabag-data:
+  wallabag-images:
+  wallabag-db-data:
+  wallabag-redis-data:
+
+networks:
+  default:
+    name: wallabag-network

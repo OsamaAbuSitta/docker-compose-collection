@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: syncthing
+    restart: unless-stopped
+    ports:
+      - "${SYNCTHING_WEB_PORT:-8384}:8384"
+      - "${SYNCTHING_LISTEN_PORT:-22000}:22000/tcp"
+      - "${SYNCTHING_LISTEN_PORT:-22000}:22000/udp"
+      - "${SYNCTHING_DISCOVERY_PORT:-21027}:21027/udp"
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - syncthing-config:/var/syncthing/config
+      - ${DATA_DIR:-./data}:/var/syncthing
+
+networks:
+  default:
+    name: syncthing-network
+
+volumes:
+  syncthing-config:

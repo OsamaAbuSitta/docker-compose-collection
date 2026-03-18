@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  lubelogger:
+    image: ghcr.io/hargata/lubelogger:latest
+    container_name: lubelogger
+    restart: unless-stopped
+    ports:
+      - "${LUBELOGGER_PORT:-8080}:8080"
+    environment:
+      - TZ=${TZ:-UTC}
+      - LC_ALL=en_US.UTF-8
+      - LANG=en_US.UTF-8
+    volumes:
+      - lubelogger-data:/App/config
+      - lubelogger-documents:/App/wwwroot/documents
+      - lubelogger-images:/App/wwwroot/images
+      - lubelogger-temp:/App/wwwroot/temp
+
+networks:
+  default:
+    name: lubelogger-network
+
+volumes:
+  lubelogger-data:
+  lubelogger-documents:
+  lubelogger-images:
+  lubelogger-temp:

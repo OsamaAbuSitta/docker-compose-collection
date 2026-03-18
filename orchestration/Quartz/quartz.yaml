@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  quartz-app:
+    image: mcr.microsoft.com/dotnet/aspnet:8.0
+    container_name: quartz_app
+    restart: unless-stopped
+    ports:
+      - "${QUARTZ_PORT:-5001}:5001"
+    environment:
+      - ASPNETCORE_URLS=http://+:5001
+      - ConnectionStrings__QuartzConnection=Host=${DB_HOST:-quartz-db};Port=${DB_PORT:-5432};Database=${DB_DATABASE:-quartz};Username=${DB_USERNAME:-quartz};Password=${DB_PASSWORD:-P@ss0rd123};
+      - Quartz__InstanceName=${INSTANCE_NAME:-QuartzScheduler}
+      - Quartz__ThreadCount=${THREAD_COUNT:-10}
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - quartz-db
+    volumes:
+      - quartz-app-data:/app/data
+    command: >
+      sh -c "echo 'Quartz.NET requires a custom .NET application. See README for setup instructions.' && tail -f /dev/null"
+
+  quartz-db:
+    image: postgres:15
+    container_name: quartz_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-quartz}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-quartz}
+    ports:
+      - "${DB_EXTERNAL_PORT:-5432}:5432"
+    volumes:
+      - quartz-db-data:/var/lib/postgresql/data
+
+volumes:
+  quartz-app-data:
+  quartz-db-data:
+
+networks:
+  default:
+    name: quartz-network

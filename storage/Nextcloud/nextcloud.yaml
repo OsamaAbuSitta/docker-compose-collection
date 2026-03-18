@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    restart: unless-stopped
+    ports:
+      - "${NEXTCLOUD_PORT:-8080}:80"
+    environment:
+      - POSTGRES_HOST=nextcloud-db
+      - POSTGRES_DB=${POSTGRES_DB:-nextcloud}
+      - POSTGRES_USER=${POSTGRES_USER:-nextcloud}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - REDIS_HOST=nextcloud-redis
+      - NEXTCLOUD_ADMIN_USER=${ADMIN_USER:-admin}
+      - NEXTCLOUD_ADMIN_PASSWORD=${ADMIN_PASSWORD:-P@ss0rd123}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${TRUSTED_DOMAINS:-localhost}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - nextcloud-data:/var/www/html
+      - ${DATA_DIR:-./data}:/var/www/html/data
+    depends_on:
+      - nextcloud-db
+      - nextcloud-redis
+
+  nextcloud-db:
+    image: postgres:15
+    container_name: nextcloud_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-nextcloud}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-nextcloud}
+    volumes:
+      - nextcloud-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nextcloud"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nextcloud-redis:
+    image: redis:7-alpine
+    container_name: nextcloud_redis
+    restart: unless-stopped
+    volumes:
+      - nextcloud-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  nextcloud-data:
+  nextcloud-db-data:
+  nextcloud-redis-data:
+
+networks:
+  default:
+    name: nextcloud-network

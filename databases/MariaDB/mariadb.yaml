@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  mariadb:
+    image: mariadb:11.2
+    container_name: mariadb_container
+    restart: unless-stopped
+    ports:
+      - "${MARIADB_PORT:-3306}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-P@ss0rd123}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-mydb}
+      - MYSQL_USER=${MYSQL_USER:-dbuser}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-P@ss0rd123}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  adminer:
+    image: adminer:latest
+    container_name: mariadb_adminer
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=mariadb
+      - ADMINER_DESIGN=${ADMINER_DESIGN:-pepa-linha-dark}
+    depends_on:
+      - mariadb
+
+volumes:
+  mariadb-data:
+
+networks:
+  default:
+    name: mariadb-network

@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+  outline:
+    image: outlinewiki/outline:latest
+    container_name: outline_app
+    restart: unless-stopped
+    ports:
+      - "${OUTLINE_PORT:-3000}:3000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-generate_a_secret_key_at_least_32_chars}
+      - UTILS_SECRET=${UTILS_SECRET:-generate_utils_secret_at_least_32_chars}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-outline}:${POSTGRES_PASSWORD:-P@ss0rd123}@outline-db:5432/${POSTGRES_DB:-outline}
+      - REDIS_URL=redis://outline-redis:6379
+      - URL=${OUTLINE_URL:-http://localhost:3000}
+      - PORT=3000
+      - FILE_STORAGE=local
+      - FILE_STORAGE_LOCAL_ROOT_DIR=/var/lib/outline/data
+      - FILE_STORAGE_UPLOAD_MAX_SIZE=26214400
+      - FORCE_HTTPS=false
+      - ENABLE_UPDATES=true
+      - WEB_CONCURRENCY=1
+      - MAXIMUM_IMPORT_SIZE=5120000
+      - DEBUG=cache,presenters,events
+      - LOG_LEVEL=info
+      - DEFAULT_LANGUAGE=en_US
+      - TZ=${TZ:-UTC}
+    volumes:
+      - outline-data:/var/lib/outline/data
+    depends_on:
+      - outline-db
+      - outline-redis
+
+  outline-db:
+    image: postgres:15
+    container_name: outline_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-outline}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-outline}
+    volumes:
+      - outline-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U outline"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  outline-redis:
+    image: redis:7-alpine
+    container_name: outline_redis
+    restart: unless-stopped
+    volumes:
+      - outline-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  outline-data:
+  outline-db-data:
+  outline-redis-data:
+
+networks:
+  default:
+    name: outline-network

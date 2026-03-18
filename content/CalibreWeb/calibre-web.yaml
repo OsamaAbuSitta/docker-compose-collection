@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    restart: unless-stopped
+    ports:
+      - "${CALIBRE_PORT:-8083}:8083"
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+      - DOCKER_MODS=linuxserver/mods:universal-calibre
+    volumes:
+      - calibre-config:/config
+      - ${BOOKS_DIR:-./books}:/books
+
+networks:
+  default:
+    name: calibre-web-network
+
+volumes:
+  calibre-config:

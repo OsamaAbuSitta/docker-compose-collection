@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  memos:
+    image: neosmemo/memos:latest
+    container_name: memos
+    restart: unless-stopped
+    ports:
+      - "${MEMOS_PORT:-5230}:5230"
+    volumes:
+      - memos-data:/var/opt/memos
+    environment:
+      - TZ=${TZ:-UTC}
+
+volumes:
+  memos-data:
+
+networks:
+  default:
+    name: memos-network

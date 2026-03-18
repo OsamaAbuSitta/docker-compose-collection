@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ntfy
+    restart: unless-stopped
+    ports:
+      - "${NTFY_PORT:-8090}:80"
+    environment:
+      - TZ=${TZ:-UTC}
+      - NTFY_BASE_URL=${NTFY_BASE_URL:-http://localhost:8090}
+      - NTFY_CACHE_FILE=${NTFY_CACHE_FILE:-/var/cache/ntfy/cache.db}
+      - NTFY_AUTH_FILE=${NTFY_AUTH_FILE:-/var/lib/ntfy/user.db}
+      - NTFY_AUTH_DEFAULT_ACCESS=${NTFY_AUTH_DEFAULT_ACCESS:-read-write}
+      - NTFY_BEHIND_PROXY=${NTFY_BEHIND_PROXY:-false}
+      - NTFY_ATTACHMENT_CACHE_DIR=${NTFY_ATTACHMENT_CACHE_DIR:-/var/cache/ntfy/attachments}
+      - NTFY_ENABLE_SIGNUP=${NTFY_ENABLE_SIGNUP:-true}
+      - NTFY_ENABLE_LOGIN=${NTFY_ENABLE_LOGIN:-true}
+    volumes:
+      - ntfy-cache:/var/cache/ntfy
+      - ntfy-data:/var/lib/ntfy
+    command: serve
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 http://localhost:80/v1/health -O - | grep -Eo '\"healthy\"\\s*:\\s*true' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  ntfy-cache:
+  ntfy-data:
+
+networks:
+  default:
+    name: ntfy-network

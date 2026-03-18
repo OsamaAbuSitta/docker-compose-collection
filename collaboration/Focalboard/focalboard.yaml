@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  focalboard-app:
+    image: mattermost/focalboard:latest
+    container_name: focalboard_app
+    restart: unless-stopped
+    ports:
+      - "${FOCALBOARD_PORT:-8000}:8000"
+    environment:
+      - FOCALBOARD_DB_TYPE=postgres
+      - FOCALBOARD_DB_HOST=${DB_HOST:-focalboard-db}
+      - FOCALBOARD_DB_PORT=${DB_PORT:-5432}
+      - FOCALBOARD_DB_NAME=${DB_DATABASE:-focalboard}
+      - FOCALBOARD_DB_USER=${DB_USERNAME:-focalboard}
+      - FOCALBOARD_DB_PASSWORD=${DB_PASSWORD:-P@ss0rd123}
+      - FOCALBOARD_SERVER_ROOT=${SERVER_ROOT:-http://localhost:8000}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - focalboard-files:/opt/focalboard/files
+    depends_on:
+      - focalboard-db
+
+  focalboard-db:
+    image: postgres:15
+    container_name: focalboard_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-focalboard}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-focalboard}
+    volumes:
+      - focalboard-db-data:/var/lib/postgresql/data
+
+volumes:
+  focalboard-files:
+  focalboard-db-data:
+
+networks:
+  default:
+    name: focalboard-network

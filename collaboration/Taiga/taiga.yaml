@@ -1,0 +1,95 @@
+version: "3.9"
+
+services:
+  taiga-gateway:
+    image: nginx:alpine
+    container_name: taiga_gateway
+    restart: unless-stopped
+    ports:
+      - "${TAIGA_PORT:-9000}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - taiga-static:/taiga/static
+      - taiga-media:/taiga/media
+    depends_on:
+      - taiga-back
+      - taiga-front
+
+  taiga-back:
+    image: taigaio/taiga-back:latest
+    container_name: taiga_back
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=${DB_HOST:-taiga-db}
+      - POSTGRES_DB=${DB_DATABASE:-taiga}
+      - POSTGRES_USER=${DB_USERNAME:-taiga}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-P@ss0rd123}
+      - TAIGA_SECRET_KEY=${SECRET_KEY:-changeme_secret_key_min_50_chars}
+      - TAIGA_SITES_SCHEME=${SCHEME:-http}
+      - TAIGA_SITES_DOMAIN=${DOMAIN:-localhost:9000}
+      - RABBITMQ_USER=${RABBITMQ_USER:-taiga}
+      - RABBITMQ_PASS=${RABBITMQ_PASS:-P@ss0rd123}
+      - RABBITMQ_HOST=${RABBITMQ_HOST:-taiga-rabbitmq}
+      - RABBITMQ_VHOST=${RABBITMQ_VHOST:-taiga}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - taiga-static:/taiga-back/static
+      - taiga-media:/taiga-back/media
+    depends_on:
+      - taiga-db
+      - taiga-rabbitmq
+
+  taiga-front:
+    image: taigaio/taiga-front:latest
+    container_name: taiga_front
+    restart: unless-stopped
+    environment:
+      - TAIGA_URL=${TAIGA_URL:-http://localhost:9000}
+      - TAIGA_WEBSOCKETS_URL=${WEBSOCKETS_URL:-ws://localhost:9000}
+      - TZ=${TZ:-UTC}
+
+  taiga-events:
+    image: taigaio/taiga-events:latest
+    container_name: taiga_events
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER:-taiga}
+      - RABBITMQ_PASS=${RABBITMQ_PASS:-P@ss0rd123}
+      - RABBITMQ_HOST=${RABBITMQ_HOST:-taiga-rabbitmq}
+      - RABBITMQ_VHOST=${RABBITMQ_VHOST:-taiga}
+      - TAIGA_SECRET_KEY=${SECRET_KEY:-changeme_secret_key_min_50_chars}
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - taiga-rabbitmq
+
+  taiga-db:
+    image: postgres:15
+    container_name: taiga_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-taiga}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-taiga}
+    volumes:
+      - taiga-db-data:/var/lib/postgresql/data
+
+  taiga-rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: taiga_rabbitmq
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-taiga}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS:-P@ss0rd123}
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST:-taiga}
+    volumes:
+      - taiga-rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  taiga-static:
+  taiga-media:
+  taiga-db-data:
+  taiga-rabbitmq-data:
+
+networks:
+  default:
+    name: taiga-network

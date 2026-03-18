@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  mattermost-app:
+    image: mattermost/mattermost-team-edition:latest
+    container_name: mattermost_app
+    restart: unless-stopped
+    ports:
+      - "${MATTERMOST_PORT:-8065}:8065"
+    environment:
+      - MM_SQLSETTINGS_DRIVERNAME=postgres
+      - MM_SQLSETTINGS_DATASOURCE=postgres://${DB_USERNAME:-mattermost}:${DB_PASSWORD:-P@ss0rd123}@${DB_HOST:-mattermost-db}:5432/${DB_DATABASE:-mattermost}?sslmode=disable&connect_timeout=10
+      - MM_SERVICESETTINGS_SITEURL=${SITE_URL:-http://localhost:8065}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - mattermost-config:/mattermost/config
+      - mattermost-data:/mattermost/data
+      - mattermost-logs:/mattermost/logs
+      - mattermost-plugins:/mattermost/plugins
+      - mattermost-client-plugins:/mattermost/client/plugins
+    depends_on:
+      - mattermost-db
+
+  mattermost-db:
+    image: postgres:15
+    container_name: mattermost_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-mattermost}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${POSTGRES_DB:-mattermost}
+    volumes:
+      - mattermost-db-data:/var/lib/postgresql/data
+
+volumes:
+  mattermost-config:
+  mattermost-data:
+  mattermost-logs:
+  mattermost-plugins:
+  mattermost-client-plugins:
+  mattermost-db-data:
+
+networks:
+  default:
+    name: mattermost-network

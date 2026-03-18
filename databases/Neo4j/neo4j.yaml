@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  neo4j:
+    image: neo4j:5.15
+    container_name: neo4j_container
+    restart: unless-stopped
+    ports:
+      - "${NEO4J_HTTP_PORT:-7474}:7474"    # HTTP
+      - "${NEO4J_HTTPS_PORT:-7473}:7473"   # HTTPS
+      - "${NEO4J_BOLT_PORT:-7687}:7687"    # Bolt
+    environment:
+      - NEO4J_AUTH=${NEO4J_AUTH:-neo4j/P@ss0rd123}
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=${NEO4J_ACCEPT_LICENSE_AGREEMENT:-yes}
+      - NEO4J_server_memory_heap_initial__size=${NEO4J_HEAP_INITIAL:-512m}
+      - NEO4J_server_memory_heap_max__size=${NEO4J_HEAP_MAX:-1G}
+      - NEO4J_server_memory_pagecache_size=${NEO4J_PAGECACHE:-512m}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+      - neo4j-import:/var/lib/neo4j/import
+      - neo4j-plugins:/plugins
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "P@ss0rd123", "RETURN 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  neo4j-data:
+  neo4j-logs:
+  neo4j-import:
+  neo4j-plugins:
+
+networks:
+  default:
+    name: neo4j-network

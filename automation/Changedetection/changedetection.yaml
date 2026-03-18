@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io:latest
+    container_name: changedetection
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - changedetection-data:/datastore
+    environment:
+      - BASE_URL=http://localhost:5000
+      - PLAYWRIGHT_DRIVER_URL=ws://playwright-chrome:3000
+
+  playwright-chrome:
+    image: browserless/chrome:latest
+    container_name: changedetection_browser
+    restart: unless-stopped
+    environment:
+      - SCREEN_WIDTH=1920
+      - SCREEN_HEIGHT=1024
+      - SCREEN_DEPTH=16
+      - MAX_CONCURRENT_SESSIONS=10
+
+volumes:
+  changedetection-data:
+
+networks:
+  default:
+    name: changedetection-network

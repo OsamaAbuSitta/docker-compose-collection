@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  speedtest-tracker:
+    image: ghcr.io/alexjustesen/speedtest-tracker:latest
+    container_name: speedtest_tracker
+    restart: unless-stopped
+    ports:
+      - "${SPEEDTEST_PORT:-8080}:80"
+    environment:
+      - APP_KEY=${APP_KEY}
+      - APP_URL=${APP_URL:-http://localhost:8080}
+      - APP_TIMEZONE=${APP_TIMEZONE:-UTC}
+      - DB_CONNECTION=pgsql
+      - DB_HOST=${DB_HOST:-speedtest-db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_DATABASE=${DB_DATABASE:-speedtest}
+      - DB_USERNAME=${DB_USERNAME:-speedtest}
+      - DB_PASSWORD=${DB_PASSWORD:-P@ss0rd123}
+      - SPEEDTEST_SCHEDULE=${SPEEDTEST_SCHEDULE:-*/30 * * * *}
+      - SPEEDTEST_SERVERS=${SPEEDTEST_SERVERS:-}
+    volumes:
+      - speedtest-config:/config
+    depends_on:
+      - speedtest-db
+
+  speedtest-db:
+    image: postgres:15
+    container_name: speedtest_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USERNAME:-speedtest}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-P@ss0rd123}
+      - POSTGRES_DB=${DB_DATABASE:-speedtest}
+    volumes:
+      - speedtest-db-data:/var/lib/postgresql/data
+
+volumes:
+  speedtest-config:
+  speedtest-db-data:
+
+networks:
+  default:
+    name: speedtest-network

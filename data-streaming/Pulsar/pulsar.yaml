@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  pulsar:
+    image: apachepulsar/pulsar:latest
+    container_name: pulsar
+    restart: unless-stopped
+    ports:
+      - "${PULSAR_PORT:-6650}:6650"
+      - "${PULSAR_HTTP_PORT:-8080}:8080"
+    command: bin/pulsar standalone
+    environment:
+      - PULSAR_MEM=${PULSAR_MEM:--Xms512m -Xmx512m -XX:MaxDirectMemorySize=256m}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - pulsar-data:/pulsar/data
+      - pulsar-conf:/pulsar/conf
+    healthcheck:
+      test: ["CMD", "bin/pulsar-admin", "brokers", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  pulsar-data:
+  pulsar-conf:
+
+networks:
+  default:
+    name: pulsar-network

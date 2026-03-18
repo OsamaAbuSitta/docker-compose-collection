@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  cyberchef:
+    image: mpepping/cyberchef:latest
+    container_name: cyberchef
+    restart: unless-stopped
+    ports:
+      - "${CYBERCHEF_PORT:-8000}:8000"
+    environment:
+      - TZ=${TZ:-UTC}
+
+networks:
+  default:
+    name: cyberchef-network

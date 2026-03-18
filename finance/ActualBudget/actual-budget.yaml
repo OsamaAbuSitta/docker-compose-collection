@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  actual-budget:
+    image: actualbudget/actual-server:latest
+    container_name: actual_budget
+    restart: unless-stopped
+    ports:
+      - "${ACTUAL_PORT:-5006}:5006"
+    volumes:
+      - actual-data:/data
+    environment:
+      - TZ=${TZ:-UTC}
+
+volumes:
+  actual-data:
+
+networks:
+  default:
+    name: actual-network

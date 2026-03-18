@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  tandoor:
+    image: vabene1111/recipes:latest
+    container_name: tandoor_recipes
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SECRET_KEY=changeme_secret_key_min_50_characters_long
+      - DB_ENGINE=django.db.backends.postgresql
+      - POSTGRES_HOST=tandoor-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=tandoor
+      - POSTGRES_USER=tandoor
+      - POSTGRES_PASSWORD=P@ss0rd123
+    volumes:
+      - tandoor-staticfiles:/opt/recipes/staticfiles
+      - tandoor-mediafiles:/opt/recipes/mediafiles
+    depends_on:
+      - tandoor-db
+
+  tandoor-db:
+    image: postgres:15
+    container_name: tandoor_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=tandoor
+      - POSTGRES_PASSWORD=P@ss0rd123
+      - POSTGRES_DB=tandoor
+    volumes:
+      - tandoor-db-data:/var/lib/postgresql/data
+
+volumes:
+  tandoor-staticfiles:
+  tandoor-mediafiles:
+  tandoor-db-data:
+
+networks:
+  default:
+    name: tandoor-network

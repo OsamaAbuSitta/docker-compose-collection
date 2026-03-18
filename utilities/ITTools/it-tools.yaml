@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  it-tools:
+    image: corentinth/it-tools:latest
+    container_name: it_tools
+    restart: unless-stopped
+    ports:
+      - "${IT_TOOLS_PORT:-8080}:80"
+    environment:
+      - TZ=${TZ:-UTC}
+
+networks:
+  default:
+    name: it-tools-network

@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  standardnotes:
+    image: standardnotes/server:latest
+    container_name: standardnotes_server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=standardnotes-db
+      - DB_PORT=3306
+      - DB_DATABASE=standardnotes
+      - DB_USERNAME=standardnotes
+      - DB_PASSWORD=P@ss0rd123
+      - DB_TYPE=mysql
+      - REDIS_URL=redis://standardnotes-redis:6379
+      - AUTH_JWT_SECRET=changeme_auth_jwt_secret_min_32_chars
+      - ENCRYPTION_SERVER_KEY=changeme_encryption_key_min_32_chars
+      - VALET_TOKEN_SECRET=changeme_valet_token_secret_min_32_chars
+      - PORT=3000
+    depends_on:
+      - standardnotes-db
+      - standardnotes-redis
+
+  standardnotes-db:
+    image: mysql:8
+    container_name: standardnotes_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=P@ss0rd123
+      - MYSQL_DATABASE=standardnotes
+      - MYSQL_USER=standardnotes
+      - MYSQL_PASSWORD=P@ss0rd123
+    volumes:
+      - standardnotes-db-data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+  standardnotes-redis:
+    image: redis:7-alpine
+    container_name: standardnotes_redis
+    restart: unless-stopped
+
+volumes:
+  standardnotes-db-data:
+
+networks:
+  default:
+    name: standardnotes-network
