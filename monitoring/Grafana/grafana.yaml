@@ -9,5 +9,5 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - "D:\\04 Self Study\\11 Dotnet\\01 Monitoring App\\MonitoringApp.Api\\Metrics\\grafana\\grafana-data:/var/lib/grafana"
+      - ./grafana-data:/var/lib/grafana
     restart: unless-stopped
