@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  roundcube:
+    image: roundcube/roundcubemail:latest
+    container_name: roundcube
+    restart: unless-stopped
+    ports:
+      - "${WEBMAIL_PORT:-8080}:80"
+    environment:
+      - ROUNDCUBEMAIL_DEFAULT_HOST=${IMAP_HOST:-dovecot}
+      - ROUNDCUBEMAIL_DEFAULT_PORT=${IMAP_PORT:-143}
+      - ROUNDCUBEMAIL_SMTP_SERVER=${SMTP_HOST:-postfix}
+      - ROUNDCUBEMAIL_SMTP_PORT=${SMTP_PORT:-25}
+      - ROUNDCUBEMAIL_DB_TYPE=sqlite
+      - TZ=${TZ:-UTC}
+    volumes:
+      - roundcube-data:/var/roundcube/db
+      - roundcube-config:/var/roundcube/config
+    networks:
+      - mail-network
+
+networks:
+  mail-network:
+    name: mail-network
+
+volumes:
+  roundcube-data:
+  roundcube-config:

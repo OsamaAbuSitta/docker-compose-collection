@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: docker-mailserver
+    hostname: ${HOSTNAME:-mail.example.com}
+    restart: unless-stopped
+    ports:
+      - "${SMTP_PORT:-25}:25"
+      - "${SUBMISSION_PORT:-587}:587"
+      - "${SMTPS_PORT:-465}:465"
+      - "${IMAP_PORT:-143}:143"
+      - "${IMAPS_PORT:-993}:993"
+    environment:
+      - OVERRIDE_HOSTNAME=${HOSTNAME:-mail.example.com}
+      - ENABLE_SPAMASSASSIN=${ENABLE_SPAMASSASSIN:-1}
+      - ENABLE_CLAMAV=${ENABLE_CLAMAV:-1}
+      - ENABLE_FAIL2BAN=${ENABLE_FAIL2BAN:-1}
+      - ENABLE_OPENDKIM=${ENABLE_OPENDKIM:-1}
+      - ENABLE_OPENDMARC=${ENABLE_OPENDMARC:-1}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - mailserver-data:/var/mail
+      - mailserver-state:/var/mail-state
+      - mailserver-logs:/var/log/mail
+      - mailserver-config:/tmp/docker-mailserver
+    cap_add:
+      - NET_ADMIN
+
+volumes:
+  mailserver-data:
+  mailserver-state:
+  mailserver-logs:
+  mailserver-config:

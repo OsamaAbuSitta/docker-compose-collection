@@ -285,6 +285,27 @@ A collection of Docker Compose for quickly spinning up development environments 
 - **[Mailhog](./mail/Mailhog/)** - Email capture for testing
   - [Official Site](https://github.com/mailhog/MailHog)
 
+- **[Dovecot](./mail/Dovecot/)** - IMAP/POP3 mailbox server
+  - [Official Site](https://www.dovecot.org/)
+
+- **[Exim](./mail/Exim/)** - Lightweight SMTP mail transfer agent
+  - [Official Site](https://www.exim.org/)
+
+- **[Roundcube](./mail/Roundcube/)** - Browser-based webmail client
+  - [Official Site](https://roundcube.net/)
+
+- **[Rspamd](./mail/Rspamd/)** - Spam filtering with DKIM/DMARC/SPF
+  - [Official Site](https://rspamd.com/)
+
+- **[ClamAV](./mail/ClamAV/)** - Antivirus engine for mail scanning
+  - [Official Site](https://www.clamav.net/)
+
+- **[Docker Mailserver](./mail/DockerMailserver/)** - All-in-one mail server (Postfix, Dovecot, DKIM, DMARC, SpamAssassin, ClamAV)
+  - [Official Site](https://docker-mailserver.github.io/docker-mailserver/)
+
+- **[Mailcow](./mail/Mailcow/)** - Full mail server suite with admin UI and webmail
+  - [Official Site](https://mailcow.email/)
+
 ### Personal Finance
 - **[Firefly III](./finance/FireflyIII/)** - Personal finance manager
   - [Official Site](https://www.firefly-iii.org/)

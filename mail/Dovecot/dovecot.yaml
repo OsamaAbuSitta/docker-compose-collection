@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  dovecot:
+    image: dovecot/dovecot:latest
+    container_name: dovecot
+    restart: unless-stopped
+    ports:
+      - "${IMAP_PORT:-143}:143"
+      - "${IMAPS_PORT:-993}:993"
+      - "${POP3_PORT:-110}:110"
+      - "${POP3S_PORT:-995}:995"
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - dovecot-mail:/var/mail
+      - dovecot-config:/etc/dovecot
+    networks:
+      - mail-network
+
+networks:
+  mail-network:
+    name: mail-network
+
+volumes:
+  dovecot-mail:
+  dovecot-config:

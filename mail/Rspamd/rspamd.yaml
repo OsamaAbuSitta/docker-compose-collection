@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  rspamd:
+    image: rspamd/rspamd:latest
+    container_name: rspamd
+    restart: unless-stopped
+    ports:
+      - "${RSPAMD_WEB_PORT:-11334}:11334"
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - rspamd-data:/var/lib/rspamd
+      - rspamd-config:/etc/rspamd/local.d
+    networks:
+      - mail-network
+
+  redis:
+    image: redis:alpine
+    container_name: rspamd-redis
+    restart: unless-stopped
+    volumes:
+      - rspamd-redis-data:/data
+    networks:
+      - mail-network
+
+networks:
+  mail-network:
+    name: mail-network
+
+volumes:
+  rspamd-data:
+  rspamd-config:
+  rspamd-redis-data:

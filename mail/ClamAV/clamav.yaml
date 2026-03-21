@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  clamav:
+    image: clamav/clamav:latest
+    container_name: clamav
+    restart: unless-stopped
+    ports:
+      - "${CLAMD_PORT:-3310}:3310"
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - clamav-db:/var/lib/clamav
+    networks:
+      - mail-network
+
+networks:
+  mail-network:
+    name: mail-network
+
+volumes:
+  clamav-db:

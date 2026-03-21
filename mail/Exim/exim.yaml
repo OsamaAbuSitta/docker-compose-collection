@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  exim:
+    image: devture/exim-relay:latest
+    container_name: exim
+    restart: unless-stopped
+    ports:
+      - "${SMTP_PORT:-25}:25"
+      - "${SUBMISSION_PORT:-587}:587"
+    environment:
+      - HOSTNAME=${HOSTNAME:-mail.example.com}
+      - RELAY_DOMAINS=${RELAY_DOMAINS:-example.com}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - exim-spool:/var/spool/exim
+      - exim-log:/var/log/exim
+    networks:
+      - mail-network
+
+networks:
+  mail-network:
+    name: mail-network
+
+volumes:
+  exim-spool:
+  exim-log:
